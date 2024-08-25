@@ -13,7 +13,6 @@ Tobit regression is employed when the dependent variable is censored in some int
 ### Model Formula
 
 The latent variable \(y_i^*\) is given by:
-<p align="center"> <img src="https://latex.codecogs.com/svg.latex?y_i&space;=&space;\begin{cases}&space;y_i^*&space;&\text{if&space;}&space;y_i^*&space;>&space;y_L&space;\\&space;y_L&space;&\text{otherwise}&space;\end{cases}" title="y_i = \begin{cases} y_i^* & \text{if } y_i^* > y_L \\ y_L & \text{otherwise} \end{cases}" /> </p>
 
 \[ y_i^* = X_i \beta + \epsilon_i \]
 
@@ -24,16 +23,14 @@ where:
 
 The observed variable \(y_i\) is defined as:
 
-\[ y_i =
-  \begin{cases} 
-  y_i^* & \text{if } y_i^* > y_L \\
-  y_L & \text{otherwise}
-  \end{cases}
-\]
+<p align="center"> <img src="https://latex.codecogs.com/svg.latex?y_i&space;=&space;\begin{cases}&space;y_i^*&space;&\text{if&space;}&space;y_i^*&space;>&space;y_L&space;\\&space;y_L&space;&\text{otherwise}&space;\end{cases}" title="y_i = \begin{cases} y_i^* & \text{if } y_i^* > y_L \\ y_L & \text{otherwise} \end{cases}" /> </p>
 
 ### Log-Likelihood Function
 
 The reparameterization introduced by Olsen is used in this implementation. The parameters are defined as \(\beta = \delta / \gamma\) and \(\sigma^2 = \gamma^{-2}\). The log-likelihood function is then expressed as:
+
+<p align="center"> <img src="https://latex.codecogs.com/svg.latex?\log&space;\mathcal{L}(\delta,&space;\gamma)&space;=&space;\sum_{y_j&space;>&space;y_L}&space;\left[\log&space;\gamma&space;&plus;&space;\log&space;\phi(\gamma&space;y_j&space;-&space;X_j&space;\delta)\right]&space;&plus;&space;\sum_{y_j&space;=&space;y_L}&space;\log&space;\Phi(\gamma&space;y_L&space;-&space;X_j&space;\delta)" title="\log \mathcal{L}(\delta, \gamma) = \sum_{y_j > y_L} \left[\log \gamma + \log \phi(\gamma y_j - X_j \delta)\right] + \sum_{y_j = y_L} \log \Phi(\gamma y_L - X_j \delta)" /> </p>
+
 
 \[ 
 \log \mathcal{L}(\delta, \gamma) = \sum_{y_j > y_L} \left[\log \gamma + \log \phi(\gamma y_j - X_j \delta)\right] + \sum_{y_j = y_L} \log \Phi(\gamma y_L - X_j \delta)
