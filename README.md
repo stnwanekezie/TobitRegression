@@ -21,7 +21,7 @@ where:
 - \(\beta\) is a vector of coefficients,
 - \(\epsilon_i\) follows a normal distribution with mean 0 and variance \(\sigma^2\).
 
-The observed variable \(y_i\) is defined as:
+The observed variable <img src="https://latex.codecogs.com/svg.latex? y_i^*" /> is defined as:
 
 <p align="center"> <img src="https://latex.codecogs.com/svg.latex?y_i&space;=&space;\begin{cases}&space;y_i^*&space;&\text{if&space;}&space;y_i^*&space;>&space;y_L&space;\\&space;y_L&space;&\text{otherwise}&space;\end{cases}" title="y_i = \begin{cases} y_i^* & \text{if } y_i^* > y_L \\ y_L & \text{otherwise} \end{cases}" /> </p>
 
