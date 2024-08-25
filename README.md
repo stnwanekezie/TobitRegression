@@ -14,6 +14,8 @@ Tobit regression is employed when the dependent variable is censored in some int
 
 The latent variable \(y_i^*\) is given by:
 
+<img src="https://latex.codecogs.com/svg.latex?\Large&space;y_i^* = X_i \beta + \epsilon_i" title="\Large y_i^* = X_i \beta + \epsilon_i" />
+
 \[ y_i^* = X_i \beta + \epsilon_i \]
 
 where:
