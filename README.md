@@ -23,17 +23,17 @@ where:
 
 The observed variable is defined as:
 
-<p align="center"><img src="https://latex.codecogs.com/svg.latex?y_i%20=%20\begin{cases}%20y_i^*%20&%20\text{if%20}%20y_i^*%20>%20y_L%20\\%20y_L%20&%20\text{otherwise}%20\end{cases}" title="y_i = \begin{cases} y_L & \text{if } y_i^* \leq y_L \\ y_i^* & \text{if } y_L < y_i^* < y_U \\ y_U & \text{otherwise} \end{cases}" /></p>
+<p align="center"><img src="https://latex.codecogs.com/svg.latex?y_i%20=%20\begin{cases}%20y_L%20&%20\text{if%20}%20y_i^*%20\leq%20y_L%20\\y_i^*%20&%20\text{if%20}%20y_L%20<%20y_i^*%20<%20y_U%20\\%20y_U%20&%20\text{otherwise}%20\end{cases}" title="y_i = \begin{cases} y_L & \text{if } y_i^* \leq y_L \\ y_i^* & \text{if } y_L < y_i^* < y_U \\ y_U & \text{otherwise} \end{cases}" /></p>
 
 ### Log-Likelihood Function
 
 The reparameterization introduced by Olsen is used in this implementation. The parameters are defined as <img src="https://latex.codecogs.com/svg.latex?\beta=\delta/\gamma" title="\beta = \delta / \gamma" /> and <img src="https://latex.codecogs.com/svg.latex?\sigma^2=\gamma^{-2}" title="\sigma^2 = \gamma^{-2}" />. The log-likelihood function is then expressed as:
 
-<p align="center"><img src="https://latex.codecogs.com/svg.latex?\log\mathcal{L}(\delta,\gamma)=\sum_{y_j>y_L}\left[\log\gamma+\log\phi(\gamma%20y_j-X_j\delta)\right]+\sum_{y_j=y_L}\log\Phi(\gamma%20y_L-X_j\delta)" title="\log \mathcal{L}(\delta, \gamma) = \sum_{y_j > y_L} \left[\log \gamma + \log \phi(\gamma y_j - X_j \delta)\right] + \sum_{y_j = y_L} \log \Phi(\gamma y_L - X_j \delta)" /></p>
+<p align="center"><img src="https://latex.codecogs.com/svg.latex?\log\mathcal{L}(\delta,\gamma)=\sum_{y_j=y_L}\log\Phi(\gamma%20y_L-X_j\delta)+\sum_{y_L<y_j<y_U}\left[\log\gamma+\log\phi(\gamma%20y_j-X_j\delta)\right]+\sum_{y_j=y_U}\log\Phi(X_j\delta-\gamma%20y_U)" title="\log \mathcal{L}(\delta, \gamma) = \sum_{y_j > y_L} \left[\log \gamma + \log \phi(\gamma y_j - X_j \delta)\right] + \sum_{y_j = y_L} \log \Phi(\gamma y_L - X_j \delta)" /></p>
 
 ## Repository Structure
 
-- `tobit_regression.py`: Contains the main implementation of the Tobit regression.
+- `tobit_reg.py`: Contains the main implementation of the Tobit regression.
 - `utils.py`: Helper functions for model diagnostics and data handling.
 - `examples/`: Directory containing notebooks and scripts demonstrating the application and performance of the model.
 
@@ -42,7 +42,7 @@ The reparameterization introduced by Olsen is used in this implementation. The p
 Clone this repository using:
 
 ```bash
-git clone https://github.com/yourusername/tobit-regression.git
+git clone https://github.com/stnwanekezie/myrecipes.git
 cd tobit-regression
 ```
 
@@ -57,10 +57,10 @@ pip install -r requirements.txt
 To run the Tobit regression model, import the main function from the script and provide it with your data:
 
 ```python
-from tobit_regression import fit_tobit_model
+from tobit.tobit_reg import Tobit
 
 # Assume X and y are your data arrays
-results = fit_tobit_model(X, y, censoring_limit=y_L)
+results = Tobit(y, X, c_lw=y_L, c_up=y_U, verbose=True).fit()
 print(results.summary())
 ```
 
@@ -73,11 +73,3 @@ Contributions are welcome! Please open an issue to discuss proposed changes or s
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
 
 ---
-
-### Notes
-
-- Replace `https://github.com/yourusername/tobit-regression.git` with your actual GitHub repository URL.
-- Make sure to add actual scripts (`tobit_regression.py`, `utils.py`, etc.) that correspond to the descriptions provided in the README.
-- Adapt the installation and usage instructions based on the actual dependencies and implementation details of your project.
-
-This approach ensures that all formulas and symbols are clearly visible and correctly rendered on GitHub, enhancing the readability and usability of your repository’s documentation.
