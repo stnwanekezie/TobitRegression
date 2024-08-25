@@ -12,40 +12,28 @@ Tobit regression is employed when the dependent variable is censored in some int
 
 ### Model Formula
 
-The latent variable \(y_i^*\) is given by:
+The latent variable <img src="https://latex.codecogs.com/svg.latex?\Large&space;y_i^*" title="\Large y_i^*" /> is given by:
 
-<p><img src="https://latex.codecogs.com/svg.latex?
-  \Large&space;y_i^* = X_i \beta + \epsilon_i" title="\Large y_i^* = X_i \beta + \epsilon_i" /> </p>
-
-\[ y_i^* = X_i \beta + \epsilon_i \]
+<p align="center"><img src="https://latex.codecogs.com/svg.latex?\Large&space;y_i^*=X_i\beta+\epsilon_i" title="\Large y_i^* = X_i \beta + \epsilon_i" /></p>
 
 where:
-- \(X_i\) is a vector of explanatory variables,
-- \(\beta\) is a vector of coefficients,
-- \(\epsilon_i\) follows a normal distribution with mean 0 and variance \(\sigma^2\).
+- <img src="https://latex.codecogs.com/svg.latex?X_i" title="X_i" /> is a vector of explanatory variables,
+- <img src="https://latex.codecogs.com/svg.latex?\beta" title="\beta" /> is a vector of coefficients,
+- <img src="https://latex.codecogs.com/svg.latex?\epsilon_i" title="\epsilon_i" /> follows a normal distribution with mean 0 and variance <img src="https://latex.codecogs.com/svg.latex?\sigma^2" title="\sigma^2" />.
 
-The observed variable <img src="https://latex.codecogs.com/svg.latex? y_i^*" /> is defined as:
+The observed variable is defined as:
 
-<p align="center"> <img src="https://latex.codecogs.com/svg.latex?y_i&space;=&space;\begin{cases}&space;y_i^*&space;&\text{if&space;}&space;y_i^*&space;>&space;y_L&space;\\&space;y_L&space;&\text{otherwise}&space;\end{cases}" title="y_i = \begin{cases} y_i^* & \text{if } y_i^* > y_L \\ y_L & \text{otherwise} \end{cases}" /> </p>
+<p align="center"><img src="https://latex.codecogs.com/svg.latex?y_i%20=%20\begin{cases}%20y_i^*%20&%20\text{if%20}%20y_i^*%20>%20y_L%20\\%20y_L%20&%20\text{otherwise}%20\end{cases}" title="y_i = \begin{cases} y_i^* & \text{if } y_i^* > y_L \\ y_L & \text{otherwise} \end{cases}" /></p>
 
 ### Log-Likelihood Function
 
-The reparameterization introduced by Olsen is used in this implementation. The parameters are defined as \(\beta = \delta / \gamma\) and \(\sigma^2 = \gamma^{-2}\). The log-likelihood function is then expressed as:
+The reparameterization introduced by Olsen is used in this implementation. The parameters are defined as <img src="https://latex.codecogs.com/svg.latex?\beta=\delta/\gamma" title="\beta = \delta / \gamma" /> and <img src="https://latex.codecogs.com/svg.latex?\sigma^2=\gamma^{-2}" title="\sigma^2 = \gamma^{-2}" />. The log-likelihood function is then expressed as:
 
-<p align="center"> <img src="https://latex.codecogs.com/svg.latex?\log&space;\mathcal{L}(\delta,&space;\gamma)&space;=&space;\sum_{y_j&space;>&space;y_L}&space;\left[\log&space;\gamma&space;&plus;&space;\log&space;\phi(\gamma&space;y_j&space;-&space;X_j&space;\delta)\right]&space;&plus;&space;\sum_{y_j&space;=&space;y_L}&space;\log&space;\Phi(\gamma&space;y_L&space;-&space;X_j&space;\delta)" title="\log \mathcal{L}(\delta, \gamma) = \sum_{y_j > y_L} \left[\log \gamma + \log \phi(\gamma y_j - X_j \delta)\right] + \sum_{y_j = y_L} \log \Phi(\gamma y_L - X_j \delta)" /> </p>
-
-
-\[ 
-\log \mathcal{L}(\delta, \gamma) = \sum_{y_j > y_L} \left[\log \gamma + \log \phi(\gamma y_j - X_j \delta)\right] + \sum_{y_j = y_L} \log \Phi(\gamma y_L - X_j \delta)
-\]
-
-where:
-- \(\phi(\cdot)\) is the standard normal probability density function,
-- \(\Phi(\cdot)\) is the standard normal cumulative distribution function.
+<p align="center"><img src="https://latex.codecogs.com/svg.latex?\log\mathcal{L}(\delta,\gamma)=\sum_{y_j>y_L}\left[\log\gamma+\log\phi(\gamma%20y_j-X_j\delta)\right]+\sum_{y_j=y_L}\log\Phi(\gamma%20y_L-X_j\delta)" title="\log \mathcal{L}(\delta, \gamma) = \sum_{y_j > y_L} \left[\log \gamma + \log \phi(\gamma y_j - X_j \delta)\right] + \sum_{y_j = y_L} \log \Phi(\gamma y_L - X_j \delta)" /></p>
 
 ## Repository Structure
 
-- `tobit_reg.py`: Contains the main implementation of the Tobit regression.
+- `tobit_regression.py`: Contains the main implementation of the Tobit regression.
 - `utils.py`: Helper functions for model diagnostics and data handling.
 - `examples/`: Directory containing notebooks and scripts demonstrating the application and performance of the model.
 
@@ -54,7 +42,8 @@ where:
 Clone this repository using:
 
 ```bash
-git clone https://github.com/stnwanekezie/myrecipes.git
+git clone https://github.com/yourusername/tobit-regression.git
+cd tobit-regression
 ```
 
 Ensure you have Python installed, and install the required dependencies:
@@ -68,10 +57,10 @@ pip install -r requirements.txt
 To run the Tobit regression model, import the main function from the script and provide it with your data:
 
 ```python
-from tobit.tobit_reg import Tobit
+from tobit_regression import fit_tobit_model
 
 # Assume X and y are your data arrays
-results = Tobit(y, X c_lw=y_L, c_up=y_U, verbose=True).fit()
+results = fit_tobit_model(X, y, censoring_limit=y_L)
 print(results.summary())
 ```
 
@@ -91,4 +80,4 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 - Make sure to add actual scripts (`tobit_regression.py`, `utils.py`, etc.) that correspond to the descriptions provided in the README.
 - Adapt the installation and usage instructions based on the actual dependencies and implementation details of your project.
 
-This README provides a clear, structured overview suitable for a GitHub project aimed at users interested in statistics, econometrics, or data science fields.
+This approach ensures that all formulas and symbols are clearly visible and correctly rendered on GitHub, enhancing the readability and usability of your repository’s documentation.
