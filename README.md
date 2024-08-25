@@ -12,9 +12,9 @@ Tobit regression is employed when the dependent variable is censored in some int
 
 ### Model Formula
 
-The latent variable <img src="https://latex.codecogs.com/svg.latex?y_i^*" title="\Large y_i^*" /> is given by:
+The latent variable <img src="https://latex.codecogs.com/svg.latex?y_i^*" title="y_i^*" /> is given by:
 
-<p align="center"><img src="https://latex.codecogs.com/svg.latex?\Large&space;y_i^*=X_i\beta+\epsilon_i" title="\Large y_i^* = X_i \beta + \epsilon_i" /></p>
+<p align="center"><img src="https://latex.codecogs.com/svg.latex?y_i^*=X_i\beta+\epsilon_i" title="y_i^* = X_i \beta + \epsilon_i" /></p>
 
 where:
 - <img src="https://latex.codecogs.com/svg.latex?X_i" title="X_i" /> is a vector of explanatory variables,
