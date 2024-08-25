@@ -1,4 +1,4 @@
-Below is a sample `README.md` file for a GitHub repository focused on Tobit regression implementation using Python. This file outlines the purpose of the repository, provides a description of the Tobit model and the specific log-likelihood function used, along with guidance on how to use the scripts in the repository.
+This file outlines the purpose of the repository, provides a description of the Tobit model and the specific log-likelihood function used, along with guidance on how to use the scripts in the repository.
 
 ---
 
@@ -13,6 +13,7 @@ Tobit regression is employed when the dependent variable is censored in some int
 ### Model Formula
 
 The latent variable \(y_i^*\) is given by:
+<p align="center"> <img src="https://latex.codecogs.com/svg.latex?y_i&space;=&space;\begin{cases}&space;y_i^*&space;&\text{if&space;}&space;y_i^*&space;>&space;y_L&space;\\&space;y_L&space;&\text{otherwise}&space;\end{cases}" title="y_i = \begin{cases} y_i^* & \text{if } y_i^* > y_L \\ y_L & \text{otherwise} \end{cases}" /> </p>
 
 \[ y_i^* = X_i \beta + \epsilon_i \]
 
@@ -44,7 +45,7 @@ where:
 
 ## Repository Structure
 
-- `tobit_regression.py`: Contains the main implementation of the Tobit regression.
+- `tobit_reg.py`: Contains the main implementation of the Tobit regression.
 - `utils.py`: Helper functions for model diagnostics and data handling.
 - `examples/`: Directory containing notebooks and scripts demonstrating the application and performance of the model.
 
@@ -53,8 +54,7 @@ where:
 Clone this repository using:
 
 ```bash
-git clone https://github.com/yourusername/tobit-regression.git
-cd tobit-regression
+git clone https://github.com/stnwanekezie/myrecipes.git
 ```
 
 Ensure you have Python installed, and install the required dependencies:
@@ -68,10 +68,10 @@ pip install -r requirements.txt
 To run the Tobit regression model, import the main function from the script and provide it with your data:
 
 ```python
-from tobit_regression import fit_tobit_model
+from tobit.tobit_reg import Tobit
 
 # Assume X and y are your data arrays
-results = fit_tobit_model(X, y, censoring_limit=y_L)
+results = Tobit(y, X c_lw=y_L, c_up=y_U, verbose=True).fit()
 print(results.summary())
 ```
 
