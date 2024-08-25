@@ -23,7 +23,7 @@ where:
 
 The observed variable is defined as:
 
-<p align="center"><img src="https://latex.codecogs.com/svg.latex?y_i%20=%20\begin{cases}%20y_i^*%20&%20\text{if%20}%20y_i^*%20>%20y_L%20\\%20y_L%20&%20\text{otherwise}%20\end{cases}" title="y_i = \begin{cases} y_i^* & \text{if } y_i^* > y_L \\ y_L & \text{otherwise} \end{cases}" /></p>
+<p align="center"><img src="https://latex.codecogs.com/svg.latex?y_i%20=%20\begin{cases}%20y_i^*%20&%20\text{if%20}%20y_i^*%20>%20y_L%20\\%20y_L%20&%20\text{otherwise}%20\end{cases}" title="y_i = \begin{cases} y_L & \text{if } y_i^* \leq y_L \\ y_i^* & \text{if } y_L < y_i^* < y_U \\ y_U & \text{otherwise} \end{cases}" /></p>
 
 ### Log-Likelihood Function
 
