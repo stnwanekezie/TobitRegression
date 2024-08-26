@@ -15,6 +15,8 @@ Description:
     result presentation capabilities. This ensures that model estimation results are presented
     in a familiar format. Parameter estimates using both the standard and reparameterized LLH function
     are validated against censReg from R.
+    NB: R-squared values and f-stats are not meaningful for non-linear models like Tobit,
+        especially with up censoring
 """
 
 import copy
@@ -172,8 +174,7 @@ class Tobit(OLS):
             - np.log(max(scale, np.finfo("float").resolution))
         )
 
-        self.llh = -1 * (llf_censored + llf_free)
-        return self.llh
+        return -1 * (llf_censored + llf_free)
 
     # Reparameterization
     def neg_llh_func2(self, params):
@@ -196,8 +197,7 @@ class Tobit(OLS):
             + norm.logpdf(gamma * self.free_endog - np.dot(self.free_exog, delta))
         )
 
-        self.llh = -1 * (llf_censored + llf_free)
-        return self.llh
+        return -1 * (llf_censored + llf_free)
 
     def neg_llh_jac2(self, params):
         gamma, delta = params[0], params[1:]
@@ -263,6 +263,7 @@ class Tobit(OLS):
         if verbose:
             print(result)
 
+        self.llh = result.fun
         if self.reparam:
             self.scale = 1 / result.x[0]
             self.params = result.x[1:] * self.scale
@@ -312,8 +313,11 @@ if __name__ == "__main__":
     # Linear model before censoring
     y_star = 5 + 0.3 * x1 + 1.5 * x2 + epsilon
     assert y_star[y_star <= 0].shape[0] > 0
-
-    y = np.maximum(0, y_star)
+    y = np.minimum(1, np.maximum(0, y_star))
     X = sm.add_constant(X)
-    mm = Tobit(y, X, reparam=True, c_lw=0, c_up=None).fit()
-    print(mm.summary())
+
+    # Separating instance from models allows access to class
+    # attributes after model run
+    tobit = Tobit(y, X, reparam=True, c_lw=0, c_up=1)
+    model = tobit.fit()
+    print(model.summary())
