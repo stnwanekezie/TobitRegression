@@ -27,7 +27,7 @@ The observed variable is defined as:
 
 ### Log-Likelihood Function
 
-Both the standard LLH function and its reparameterization introduced by Olsen is used in this implementation. The latter parameters are defined as <img src="https://latex.codecogs.com/svg.latex?\beta=\delta/\gamma" title="\beta = \delta / \gamma" /> and <img src="https://latex.codecogs.com/svg.latex?\sigma^2=\gamma^{-2}" title="\sigma^2 = \gamma^{-2}" />. The log-likelihood function is then expressed as:
+Both the standard LLH function and its reparameterization introduced by Olsen are used in this implementation. The latter parameters are defined as <img src="https://latex.codecogs.com/svg.latex?\beta=\delta/\gamma" title="\beta = \delta / \gamma" /> and <img src="https://latex.codecogs.com/svg.latex?\sigma^2=\gamma^{-2}" title="\sigma^2 = \gamma^{-2}" />. The (reparameterized) log-likelihood function is then expressed as:
 
 <p align="center"><img src="https://latex.codecogs.com/svg.latex?\log\mathcal{L}(\delta,\gamma)=\sum_{y_j=y_L}\log\Phi(\gamma%20y_L-X_j\delta)+\sum_{y_L<y_j<y_U}\left[\log\gamma+\log\phi(\gamma%20y_j-X_j\delta)\right]+\sum_{y_j=y_U}\log\Phi(X_j\delta-\gamma%20y_U)" title="\log \mathcal{L}(\delta, \gamma) = \sum_{y_j > y_L} \left[\log \gamma + \log \phi(\gamma y_j - X_j \delta)\right] + \sum_{y_j = y_L} \log \Phi(\gamma y_L - X_j \delta)" /></p>
 
