@@ -330,4 +330,3 @@ if __name__ == "__main__":
         y = np.minimum(y_u, y)
     model2 = OLS(y, X).fit(cov_type='HC1')
     print(model2.summary())
-    print()
