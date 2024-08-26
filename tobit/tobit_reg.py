@@ -49,11 +49,11 @@ class Tobit(OLS):
     ):
         """
 
-        :param endog: endogenous variable
-        :param exog: exogenous variable(s)
+        :param endog: np.ndarray or pd.Series or pd.DataFrame - endogenous variable
+        :param exog: np.ndarray or pd.Series - exogenous variable(s)
         :param reparam: bool - specifies whether to use Olsen's reparameterization
-        :param c_lw: float or floating - lower censoring limit
-        :param c_up: float or floating - upper censoring limit
+        :param c_lw: int or float or floating - lower censoring limit
+        :param c_up: int or float or floating - upper censoring limit
         :param ols_option: bool - specifies whether to use OLS analytical
         solution or MLE when no threshold value is given
         :param missing: see OLS documentation
@@ -73,7 +73,7 @@ class Tobit(OLS):
         exog_copy = copy.deepcopy(exog)
 
         super().__init__(endog_copy, exog_copy, missing=missing, hasconst=hasconst, **kwargs)
-        if isinstance(endog, pd.DataFrame):
+        if isinstance(endog, pd.DataFrame) or isinstance(endog, pd.Series):
             endog = endog.values
         if isinstance(exog, pd.DataFrame):
             exog = exog.values
