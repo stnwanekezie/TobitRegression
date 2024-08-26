@@ -1,7 +1,7 @@
 """
 Author: Stanley Nwanekezie
 Created on: August 25, 2024
-Last Modified: August 25, 2024
+Last Modified: August 26, 2024
 Email: stanwanekezie@gmail.com
 
 Description:
@@ -306,7 +306,8 @@ if __name__ == "__main__":
     x1 = np.random.normal(loc=10, scale=3, size=n)
     x2 = np.random.normal(loc=5, scale=3, size=n)
     X = np.column_stack((x1, x2))
-    epsilon = np.random.normal(loc=0, scale=2, size=n)  # Error term
+    # Error term
+    epsilon = np.random.normal(loc=0, scale=2, size=n)
 
     # Linear model before censoring
     y_star = 5 + 0.3 * x1 + 1.5 * x2 + epsilon
@@ -314,7 +315,5 @@ if __name__ == "__main__":
 
     y = np.maximum(0, y_star)
     X = sm.add_constant(X)
-
     mm = Tobit(y, X, reparam=True, c_lw=0, c_up=None).fit()
     print(mm.summary())
-
