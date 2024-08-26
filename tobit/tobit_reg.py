@@ -13,7 +13,7 @@ Description:
     Uniqueness of the Maximum Likelihood Estimator for the Tobit Model". Econometrica. 46 (5):
     1211–1215. doi:10.2307/1911445. JSTOR 1911445. This implementation leverages the statsmodels
     module for its robust data checking and result presentation capabilities. This ensures that
-    model estimation results are presented    in a familiar format. Parameter estimates using
+    model estimation results are presented in a familiar format. Parameter estimates using
     both the standard and reparameterized LLH functions are validated against censReg from R.
 """
 
