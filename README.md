@@ -33,9 +33,9 @@ The reparameterization introduced by Olsen is used in this implementation. The p
 
 ## Repository Structure
 
-- `tobit_reg.py`: Contains the main implementation of the Tobit regression.
-- `utils.py`: Helper functions for model diagnostics and data handling.
-- `examples/`: Directory containing notebooks and scripts demonstrating the application and performance of the model.
+- `tobit\tobit_reg.py`: Contains the main implementation of the Tobit regression.
+- `requirements.txt`: List of modules requisite to run the module.
+Run `tobit_reg.py` directly for an example of the model application.
 
 ## Installation
 
