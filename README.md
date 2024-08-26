@@ -57,7 +57,7 @@ pip install -r requirements.txt
 To run the Tobit regression model, import the main function from the script and provide it with your data:
 
 ```python
-from tobit.tobit_reg import Tobit
+from tobit_reg import Tobit
 
 # Assume X and y are your data arrays
 results = Tobit(y, X, c_lw=y_L, c_up=y_U, verbose=True).fit()
