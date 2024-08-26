@@ -15,8 +15,6 @@ Description:
     result presentation capabilities. This ensures that model estimation results are presented
     in a familiar format. Parameter estimates using both the standard and reparameterized LLH function
     are validated against censReg from R.
-    NB: R-squared values and f-stats are not meaningful for non-linear models like Tobit,
-        especially with up censoring
 """
 
 import copy
@@ -42,7 +40,7 @@ class Tobit(OLS):
         endog,
         exog=None,
         reparam=True,
-        c_lw=0,
+        c_lw=0.0,
         c_up=None,
         missing="none",
         hasconst=None,
@@ -263,7 +261,7 @@ class Tobit(OLS):
         if verbose:
             print(result)
 
-        self.llh = result.fun
+        self.llh = -result.fun
         if self.reparam:
             self.scale = 1 / result.x[0]
             self.params = result.x[1:] * self.scale
@@ -290,7 +288,7 @@ class Tobit(OLS):
 
         return RegressionResultsWrapper(lfit)
 
-    def fit(self, cov_type="nonrobust", cov_kwds=None, use_t=None, verbose=True, **kwargs):
+    def fit(self, cov_type="HC1", cov_kwds=None, use_t=None, verbose=True, **kwargs):
         if all((self._c_lw is None, self._c_up is None)):
             return super().fit(cov_type=cov_type, cov_kwds=None, use_t=None, **kwargs)
         else:
@@ -300,24 +298,36 @@ class Tobit(OLS):
 
 
 if __name__ == "__main__":
-    np.random.seed(42)
+    np.random.seed(123)
     # Generate the data
-    n = 10000  # Number of observations
-    # Independent variable
+
+    # Number of observations
+    n = 10000
+    # Independent variables
     x1 = np.random.normal(loc=10, scale=3, size=n)
     x2 = np.random.normal(loc=5, scale=3, size=n)
-    X = np.column_stack((x1, x2))
     # Error term
     epsilon = np.random.normal(loc=0, scale=2, size=n)
 
     # Linear model before censoring
     y_star = 5 + 0.3 * x1 + 1.5 * x2 + epsilon
-    assert y_star[y_star <= 0].shape[0] > 0
-    y = np.minimum(1, np.maximum(0, y_star))
+
+    y_l, y_u = np.quantile(y_star, 0.10), np.quantile(y_star, 0.90)
+    y = copy.deepcopy(y_star)
+    X = np.column_stack((x1, x2))
     X = sm.add_constant(X)
 
     # Separating instance from models allows access to class
-    # attributes after model run
-    tobit = Tobit(y, X, reparam=True, c_lw=0, c_up=1)
-    model = tobit.fit()
+    # attributes after model run. Censoring handled within class
+    tobit = Tobit(y, X, reparam=False, c_lw=y_l, c_up=y_u)  # noqa
+    model = tobit.fit(cov_type='HC1')
     print(model.summary())
+
+    # Compare model fit to OLS
+    if y_l is not None:
+        y = np.maximum(y_l, y)
+    if y_u is not None:
+        y = np.minimum(y_u, y)
+    model2 = OLS(y, X).fit(cov_type='HC1')
+    print(model2.summary())
+    print()
