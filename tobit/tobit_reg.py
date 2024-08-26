@@ -9,12 +9,12 @@ Description:
     flexibility for both upward and downward censoring of the dependent variable.
     The standard and reparameterized LLH function at https://en.wikipedia.org/wiki/Tobit_model
     have been adopted and extended to include right censoring. Note that the reparameterized
-    LLH is more accurate per Olsen, Randall J. (1978). "Note on the Uniqueness of the Maximum
-    Likelihood Estimator for the Tobit Model". Econometrica. 46 (5): 1211–1215. doi:10.2307/1911445.
-    JSTOR 1911445. This implementation leverages the statsmodels module for its robust data checking and
-    result presentation capabilities. This ensures that model estimation results are presented
-    in a familiar format. Parameter estimates using both the standard and reparameterized LLH functions
-    are validated against censReg from R.
+    LLH may be more accurate for a specific problem per Olsen, Randall J. (1978). "Note on the
+    Uniqueness of the Maximum Likelihood Estimator for the Tobit Model". Econometrica. 46 (5):
+    1211–1215. doi:10.2307/1911445. JSTOR 1911445. This implementation leverages the statsmodels
+    module for its robust data checking and result presentation capabilities. This ensures that
+    model estimation results are presented    in a familiar format. Parameter estimates using
+    both the standard and reparameterized LLH functions are validated against censReg from R.
 """
 
 import copy
