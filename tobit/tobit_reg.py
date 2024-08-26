@@ -20,14 +20,13 @@ Description:
 import copy
 import warnings
 import numpy as np
-import pandas as pd
 import statsmodels.api as sm
 from statsmodels.api import OLS
 from scipy.stats import norm
 from scipy.optimize import minimize
 from scipy.special import log_ndtr
 from statsmodels.tools.numdiff import approx_hess2
-from statsmodels.regression.linear_model import OLSResults, RegressionResultsWrapper
+from statsmodels.regression.linear_model import OLSResults, RegressionResultsWrapper  # noqa
 
 
 class Tobit(OLS):
@@ -109,7 +108,7 @@ class Tobit(OLS):
 
         return -np.append(scale_jac, betas_jac)
 
-    def loglike(self, params):
+    def loglike(self, params):  # noqa
         if hasattr(self, 'llh'):
             return self.llh
         else:
@@ -181,9 +180,9 @@ class Tobit(OLS):
         return -np.append(gamma_jac, delta_jac)
 
     def fit_tobit(self, cov_type='HC1', cov_kwds=None, use_t=None, verbose=True):
-        modl = super().fit(cov_type=cov_type)
+        modl = super().fit(cov_type=cov_type)  # noqa
         self.ols_params = copy.deepcopy(modl.params)
-        scale = np.sqrt(np.cov(model.resid))
+        scale = np.sqrt(np.cov(modl.resid))  # noqa
 
         if self.reparam:
             gamma0 = 1 / np.sqrt(scale)
@@ -218,11 +217,11 @@ class Tobit(OLS):
 
         return RegressionResultsWrapper(lfit)
 
-    def fit(self, cov_type='HC1', cov_kwds=None, use_t=None, verbose=True):
+    def fit(self, cov_type='HC1', cov_kwds=None, use_t=None, verbose=True, **kwargs):
         if all((self._c_lw is None, self._c_up is None)):
-            return super().fit(cov_type='HC1', cov_kwds=None, use_t=None, verbose=True)
+            return super().fit(cov_type=cov_type, cov_kwds=None, use_t=None, **kwargs)
         else:
-            return self.fit_tobit(cov_type='HC1', cov_kwds=None, use_t=None, verbose=True)
+            return self.fit_tobit(cov_type=cov_type, cov_kwds=None, use_t=None, verbose=True)
 
 
 if __name__ == '__main__':
