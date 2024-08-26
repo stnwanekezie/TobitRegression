@@ -13,8 +13,8 @@ Description:
     Likelihood Estimator for the Tobit Model". Econometrica. 46 (5): 1211–1215. doi:10.2307/1911445.
     JSTOR 1911445. This implementation leverages the statsmodels module for its robust data checking and
     result presentation capabilities. This ensures that model estimation results are presented
-    in a familiar format. Parameter estimates using the standard LLH function are validated against
-    https://github.com/jamesdj/tobit/blob/master/tobit.py.
+    in a familiar format. Parameter estimates using both the standard and reparameterized LLH function
+    are validated against censReg from R.
 """
 
 import copy
@@ -264,8 +264,8 @@ class Tobit(OLS):
             print(result)
 
         if self.reparam:
-            self.scale = 1 / result.x[0] ** 2
-            self.params = result.x[1:] / np.sqrt(self.scale)
+            self.scale = 1 / result.x[0]
+            self.params = result.x[1:] * self.scale
         else:
             self.scale = result.x[0]
             self.params = result.x[1:]
@@ -289,7 +289,7 @@ class Tobit(OLS):
 
         return RegressionResultsWrapper(lfit)
 
-    def fit(self, cov_type="HC1", cov_kwds=None, use_t=None, verbose=True, **kwargs):
+    def fit(self, cov_type="nonrobust", cov_kwds=None, use_t=None, verbose=True, **kwargs):
         if all((self._c_lw is None, self._c_up is None)):
             return super().fit(cov_type=cov_type, cov_kwds=None, use_t=None, **kwargs)
         else:
@@ -299,11 +299,22 @@ class Tobit(OLS):
 
 
 if __name__ == "__main__":
-    rows, cols = 200, 5
     np.random.seed(42)
-    y = np.random.randn(rows)
-    X = sm.add_constant(np.random.randn(rows, cols))
-    model = Tobit(y, X, reparam=True, c_lw=0, c_up=1).fit(cov_type="HC1")
-    print(model.summary())
-    model2 = OLS(y, X).fit(cov_type="HC1")
-    print(model2.summary())
+    # Generate the data
+    n = 10000  # Number of observations
+    # Independent variable
+    x1 = np.random.normal(loc=10, scale=3, size=n)
+    x2 = np.random.normal(loc=5, scale=3, size=n)
+    X = np.column_stack((x1, x2))
+    epsilon = np.random.normal(loc=0, scale=2, size=n)  # Error term
+
+    # Linear model before censoring
+    y_star = 5 + 0.3 * x1 + 1.5 * x2 + epsilon
+    assert y_star[y_star <= 0].shape[0] > 0
+
+    y = np.maximum(0, y_star)
+    X = sm.add_constant(X)
+
+    mm = Tobit(y, X, reparam=True, c_lw=0, c_up=None).fit()
+    print(mm.summary())
+
