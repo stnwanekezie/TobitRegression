@@ -27,9 +27,9 @@ from scipy.special import log_ndtr
 from scipy.stats import norm
 from statsmodels.api import OLS
 from statsmodels.regression.linear_model import (
-    OLSResults,
+    OLSResults, # noqa
     RegressionResultsWrapper,
-)  # noqa
+)
 from statsmodels.tools.numdiff import approx_hess2
 
 
