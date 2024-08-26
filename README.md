@@ -60,7 +60,7 @@ To run the Tobit regression model, import the main function from the script and 
 from tobit_reg import Tobit
 
 # Assume X and y are your data arrays
-results = Tobit(y, X, c_lw=y_L, c_up=y_U, verbose=True).fit()
+results = Tobit(y, X, c_lw=y_L, c_up=y_U).fit(verbose=True)
 print(results.summary())
 ```
 
