@@ -42,10 +42,24 @@ class Tobit(OLS):
         reparam=True,
         c_lw=0.0,
         c_up=None,
+        ols_option=True,
         missing="none",
         hasconst=None,
         **kwargs
     ):
+        """
+
+        :param endog: endogenous variable
+        :param exog: exogenous variable(s)
+        :param reparam: bool - specifies whether to use Olsen's reparameterization
+        :param c_lw: float or floating - lower censoring limit
+        :param c_up: float or floating - upper censoring limit
+        :param ols_option: bool - specifies whether to use OLS analytical
+        solution or MLE when no threshold value is given
+        :param missing: see OLS documentation
+        :param hasconst: see OLS documentation
+        :param kwargs: see OLS documentation
+        """
         self._c_lw = c_lw
         self._c_up = c_up
         self.reparam = reparam
@@ -53,6 +67,7 @@ class Tobit(OLS):
         self.scale = None
         self.params = None
         self.ols_params = None
+        self.ols_option = ols_option
 
         endog_copy = copy.deepcopy(endog)
         exog_copy = copy.deepcopy(exog)
@@ -63,20 +78,16 @@ class Tobit(OLS):
         if isinstance(exog, pd.DataFrame):
             exog = exog.values
         if c_lw is not None and c_up is None:
-            endog[endog <= c_lw] = c_lw
             self.left_endog = endog[endog == c_lw]
             self.left_exog = exog[endog == c_lw, :]
             self.free_endog = endog[endog > c_lw]
             self.free_exog = exog[endog > c_lw, :]
         elif c_lw is None and c_up is not None:
-            endog[endog >= c_up] = c_up
             self.free_endog = endog[endog < c_up]
             self.free_exog = exog[endog < c_up, :]
             self.right_endog = endog[endog == c_up]
             self.right_exog = exog[endog == c_up, :]
         elif c_lw is not None and c_up is not None:
-            endog[endog <= c_lw] = c_lw
-            endog[endog >= c_up] = c_up
             self.left_endog = endog[endog == c_lw]
             self.left_exog = exog[endog == c_lw]
             self.free_endog = endog[(endog > c_lw) & (endog < c_up)]
@@ -86,10 +97,11 @@ class Tobit(OLS):
             self.right_endog = endog[endog == c_up]
             self.right_exog = exog[endog == c_up]
         else:
+            self.free_endog = endog
+            self.free_exog = exog
             warnings.warn(
                 "No censoring threshold provided; OLS will be used for model estimation."
             )
-            self.__class__.__name__ = "OLS"
 
     @property
     def c_lw(self):
@@ -112,7 +124,7 @@ class Tobit(OLS):
 
         scale_jac_censored = 0
         betas_jac_censored = np.zeros(len(betas))
-        if self._c_lw is not None:
+        if self._c_lw is not None and self.left_endog.size:
             left_zscores = (self.left_endog - np.dot(self.left_exog, betas)) / scale
             left_d_dscale = np.dot(
                 norm.pdf(left_zscores) / norm.cdf(left_zscores), -left_zscores / scale
@@ -123,7 +135,7 @@ class Tobit(OLS):
             scale_jac_censored += left_d_dscale
             betas_jac_censored += left_d_dbetas
 
-        if self._c_up is not None:
+        if self._c_up is not None and self.right_endog.size:
             right_zscores = (np.dot(self.right_exog, betas) - self.right_endog) / scale
             right_d_dscale = np.dot(
                 norm.pdf(right_zscores) / norm.cdf(right_zscores),
@@ -156,12 +168,12 @@ class Tobit(OLS):
 
         llf_censored = 0
 
-        if self._c_lw is not None:
+        if self._c_lw is not None and self.left_endog.size:
             llf_left = np.sum(
                 log_ndtr((self.left_endog - np.dot(self.left_exog, betas)) / scale)
             )
             llf_censored += llf_left
-        if self._c_up is not None:
+        if self._c_up is not None and self.right_endog.size:
             llf_right = np.sum(
                 log_ndtr((np.dot(self.right_exog, betas) - self.right_endog) / scale)
             )
@@ -179,12 +191,12 @@ class Tobit(OLS):
         gamma, delta = params[0], params[1:]
 
         llf_censored = 0
-        if self._c_lw is not None:
+        if self._c_lw is not None and self.left_endog.size:
             llf_left = np.sum(
                 norm.logcdf(gamma * self.left_endog - np.dot(self.left_exog, delta))
             )
             llf_censored += llf_left
-        if self._c_up is not None:
+        if self._c_up is not None and self.right_endog.size:
             llf_right = np.sum(
                 norm.logcdf(np.dot(self.right_exog, delta) - gamma * self.right_endog)
             )
@@ -203,7 +215,7 @@ class Tobit(OLS):
         gamma_jac_censored = 0
         delta_jac_censored = np.zeros(len(delta))
 
-        if self._c_lw is not None:
+        if self._c_lw is not None and self.left_endog.size:
             left_zscore = gamma * self.left_endog - np.dot(self.left_exog, delta)
             left_d_dgamma = np.dot(
                 norm.pdf(left_zscore) / norm.cdf(left_zscore), self.left_endog
@@ -214,7 +226,7 @@ class Tobit(OLS):
             delta_jac_censored += left_d_ddelta
             gamma_jac_censored += left_d_dgamma
 
-        if self._c_up is not None:
+        if self._c_up is not None and self.right_endog.size:
             right_zscore = np.dot(self.right_exog, delta) - gamma * self.right_endog
             right_d_dgamma = np.dot(
                 norm.pdf(right_zscore) / norm.cdf(right_zscore), -self.right_endog
@@ -289,7 +301,7 @@ class Tobit(OLS):
         return RegressionResultsWrapper(lfit)
 
     def fit(self, cov_type="HC1", cov_kwds=None, use_t=None, verbose=True, **kwargs):
-        if all((self._c_lw is None, self._c_up is None)):
+        if all((self._c_lw is None, self._c_up is None)) and self.ols_option:
             return super().fit(cov_type=cov_type, cov_kwds=None, use_t=None, **kwargs)
         else:
             return self.fit_tobit(
@@ -301,6 +313,8 @@ if __name__ == "__main__":
     np.random.seed(123)
     # Generate the data
 
+    use_pandas = True
+    ols_opt = False
     # Number of observations
     n = 10000
     # Independent variables
@@ -317,16 +331,22 @@ if __name__ == "__main__":
     X = np.column_stack((x1, x2))
     X = sm.add_constant(X)
 
+    if use_pandas:
+        y = pd.Series(y)
+        X = pd.DataFrame(X)
+
+    # Censoring
+    if y_l is not None:
+        y[y <= y_l] = y_l
+    if y_u is not None:
+        y[y >= y_u] = y_u
+
     # Separating instance from models allows access to class
     # attributes after model run. Censoring handled within class
-    tobit = Tobit(y, X, reparam=False, c_lw=y_l, c_up=y_u)  # noqa
+    tobit = Tobit(y, X, reparam=False, c_lw=y_l, c_up=y_u, ols_option=ols_opt)  # noqa
     model = tobit.fit(cov_type='HC1')
     print(model.summary())
 
     # Compare model fit to OLS
-    if y_l is not None:
-        y = np.maximum(y_l, y)
-    if y_u is not None:
-        y = np.minimum(y_u, y)
     model2 = OLS(y, X).fit(cov_type='HC1')
     print(model2.summary())
