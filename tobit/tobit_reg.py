@@ -21,6 +21,7 @@ import copy
 import warnings
 
 import numpy as np
+import pandas as pd
 import statsmodels.api as sm
 from scipy.optimize import minimize
 from scipy.special import log_ndtr
@@ -53,26 +54,37 @@ class Tobit(OLS):
         self.params = None
         self.ols_params = None
 
-        super().__init__(endog, exog, missing=missing, hasconst=hasconst, **kwargs)
+        endog_copy = copy.deepcopy(endog)
+        exog_copy = copy.deepcopy(exog)
+
+        super().__init__(endog_copy, exog_copy, missing=missing, hasconst=hasconst, **kwargs)
+        if isinstance(endog, pd.DataFrame):
+            endog = endog.values
+        if isinstance(exog, pd.DataFrame):
+            exog = exog.values
         if c_lw is not None and c_up is None:
-            self.left_endog = endog[endog <= c_lw]
-            self.left_exog = exog[np.where(endog <= c_lw, True, False), :]
+            endog[endog <= c_lw] = c_lw
+            self.left_endog = endog[endog == c_lw]
+            self.left_exog = exog[endog == c_lw, :]
             self.free_endog = endog[endog > c_lw]
-            self.free_exog = exog[np.where(endog > c_lw, True, False), :]
+            self.free_exog = exog[endog > c_lw, :]
         elif c_lw is None and c_up is not None:
+            endog[endog >= c_up] = c_up
             self.free_endog = endog[endog < c_up]
-            self.free_exog = exog[np.where(endog < c_up, True, False), :]
-            self.right_endog = endog[endog >= c_up]
-            self.right_exog = exog[np.where(endog >= c_up, True, False), :]
+            self.free_exog = exog[endog < c_up, :]
+            self.right_endog = endog[endog == c_up]
+            self.right_exog = exog[endog == c_up, :]
         elif c_lw is not None and c_up is not None:
-            self.left_endog = endog[endog <= c_lw]
-            self.left_exog = exog[np.where(endog <= c_lw, True, False), :]
+            endog[endog <= c_lw] = c_lw
+            endog[endog >= c_up] = c_up
+            self.left_endog = endog[endog == c_lw]
+            self.left_exog = exog[endog == c_lw]
             self.free_endog = endog[(endog > c_lw) & (endog < c_up)]
             self.free_exog = exog[
-                np.where((endog > c_lw) & (endog < c_up), True, False), :
+                (endog > c_lw) & (endog < c_up), :
             ]
-            self.right_endog = endog[endog >= c_up]
-            self.right_exog = exog[np.where(endog >= c_up, True, False), :]
+            self.right_endog = endog[endog == c_up]
+            self.right_exog = exog[endog == c_up]
         else:
             warnings.warn(
                 "No censoring threshold provided; OLS will be used for model estimation."
@@ -291,7 +303,7 @@ if __name__ == "__main__":
     np.random.seed(42)
     y = np.random.randn(rows)
     X = sm.add_constant(np.random.randn(rows, cols))
-    model = Tobit(y, X, reparam=False, c_lw=0, c_up=1).fit(cov_type="HC1")
+    model = Tobit(y, X, reparam=True, c_lw=0, c_up=1).fit(cov_type="HC1")
     print(model.summary())
     model2 = OLS(y, X).fit(cov_type="HC1")
     print(model2.summary())
