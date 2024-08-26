@@ -342,7 +342,7 @@ if __name__ == "__main__":
         y[y >= y_u] = y_u
 
     # Separating instance from models allows access to class
-    # attributes after model run. Censoring handled within class
+    # attributes after model run.
     tobit = Tobit(y, X, reparam=False, c_lw=y_l, c_up=y_u, ols_option=ols_opt)  # noqa
     model = tobit.fit(cov_type='HC1')
     print(model.summary())
