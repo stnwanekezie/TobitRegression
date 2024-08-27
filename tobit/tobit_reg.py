@@ -63,7 +63,6 @@ class Tobit(OLS):
         self._c_lw = c_lw
         self._c_up = c_up
         self.reparam = reparam
-        self.llh = 0
         self.scale = None
         self.params = None
         self.ols_params = None
@@ -302,10 +301,12 @@ class Tobit(OLS):
 
     def fit(self, cov_type="HC1", cov_kwds=None, use_t=None, verbose=True, **kwargs):
         if all((self._c_lw is None, self._c_up is None)) and self.ols_option:
+            # res =
+            # self.loglike(res.params)
             return super().fit(cov_type=cov_type, cov_kwds=None, use_t=None, **kwargs)
         else:
             return self.fit_tobit(
-                cov_type=cov_type, cov_kwds=None, use_t=None, verbose=True
+                cov_type=cov_type, cov_kwds=None, use_t=None, verbose=verbose
             )
 
 
@@ -326,7 +327,7 @@ if __name__ == "__main__":
     # Linear model before censoring
     y_star = 5 + 0.3 * x1 + 1.5 * x2 + epsilon
 
-    y_l, y_u = np.quantile(y_star, 0.10), np.quantile(y_star, 0.90)
+    y_l, y_u = None, None, #np.quantile(y_star, 0.10), np.quantile(y_star, 0.90)
     y = copy.deepcopy(y_star)
     X = np.column_stack((x1, x2))
     X = sm.add_constant(X)
@@ -343,10 +344,11 @@ if __name__ == "__main__":
 
     # Separating instance from models allows access to class
     # attributes after model run.
-    tobit = Tobit(y, X, reparam=False, c_lw=y_l, c_up=y_u, ols_option=ols_opt)  # noqa
+    tobit = Tobit(y, X, reparam=True, c_lw=y_l, c_up=y_u, ols_option=True)  # noqa
     model = tobit.fit(cov_type='HC1')
     print(model.summary())
 
     # Compare model fit to OLS
     model2 = OLS(y, X).fit(cov_type='HC1')
     print(model2.summary())
+    print()
