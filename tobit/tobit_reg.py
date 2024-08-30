@@ -31,7 +31,6 @@ from statsmodels.regression.linear_model import (
     OLSResults, # noqa
     RegressionResultsWrapper,
 )
-from statsmodels.tools.numdiff import approx_hess2
 
 
 class Tobit(OLS):
@@ -87,6 +86,8 @@ class Tobit(OLS):
             self.right_endog = endog[endog == c_up]
             self.right_exog = exog[endog == c_up, :]
         elif c_lw is not None and c_up is not None:
+            # endog[endog <= c_lw] = c_lw
+            # endog[endog >= c_up] = c_up
             self.left_endog = endog[endog == c_lw]
             self.left_exog = exog[endog == c_lw]
             self.free_endog = endog[(endog > c_lw) & (endog < c_up)]
@@ -262,17 +263,17 @@ class Tobit(OLS):
             jac = self.neg_llh_jac
 
         result = minimize(
-            lambda params: func(params),
+            func,
             params0,
             method="BFGS",
-            jac=lambda params: jac(params),
+            jac=jac,
             options={"disp": verbose},
         )
 
         if verbose:
             print(result)
 
-        self.llh = -result.fun
+        self.llh = -result.fun  # noqa
         if self.reparam:
             self.scale = 1 / result.x[0]
             self.params = result.x[1:] * self.scale
@@ -280,9 +281,10 @@ class Tobit(OLS):
             self.scale = result.x[0]
             self.params = result.x[1:]
 
-        normalized_cov_params = np.linalg.inv(
-            approx_hess2(np.append(self.scale, self.params), func)
-        )
+        normalized_cov_params = result.hess_inv
+        # alternatively
+        # from statsmodels.tools.numdiff import approx_hess2
+        # normalized_cov_params = np.linalg.inv(approx_hess2(np.append(self.scale, self.params), func))
         self.normalized_cov_params = normalized_cov_params[  # noqa
             1:, 1:
         ]  # Removal of scale covariances
@@ -314,7 +316,7 @@ if __name__ == "__main__":
     np.random.seed(123)
     # Generate the data
 
-    use_pandas = True
+    use_pandas = False
     ols_opt = False
     # Number of observations
     n = 10000
@@ -327,14 +329,10 @@ if __name__ == "__main__":
     # Linear model before censoring
     y_star = 5 + 0.3 * x1 + 1.5 * x2 + epsilon
 
-    y_l, y_u = None, None, #np.quantile(y_star, 0.10), np.quantile(y_star, 0.90)
+    y_l, y_u = np.quantile(y_star, 0.10), np.quantile(y_star, 0.90)
     y = copy.deepcopy(y_star)
     X = np.column_stack((x1, x2))
     X = sm.add_constant(X)
-
-    if use_pandas:
-        y = pd.Series(y)
-        X = pd.DataFrame(X)
 
     # Censoring
     if y_l is not None:
@@ -342,9 +340,13 @@ if __name__ == "__main__":
     if y_u is not None:
         y[y >= y_u] = y_u
 
+    if use_pandas:
+        y = pd.Series(y)
+        X = pd.DataFrame(X)
+
     # Separating instance from models allows access to class
     # attributes after model run.
-    tobit = Tobit(y, X, reparam=True, c_lw=y_l, c_up=y_u, ols_option=True)  # noqa
+    tobit = Tobit(y, X, reparam=False, c_lw=y_l, c_up=y_u, ols_option=ols_opt)  # noqa
     model = tobit.fit(cov_type='HC1')
     print(model.summary())
 

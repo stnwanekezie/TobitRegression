@@ -275,11 +275,6 @@ class TestTobit(unittest.TestCase):
         # Linear model before censoring
         y_star = 5 + 0.3 * x1 + 1.5 * x2 + epsilon
 
-        y_l, y_u = np.quantile(y_star, 0.10), np.quantile(y_star, 0.90)
-        c_lw_values = [np.quantile(y_star, 0.10), None]
-        c_up_values = [np.quantile(y_star, 0.90), None]
-        bool_values = [True, False]  # for reparam and ols_option
-
         y = copy.deepcopy(y_star)
         X = np.column_stack((x1, x2))  # noqa
         X = sm.add_constant(X)  # noqa
@@ -287,6 +282,9 @@ class TestTobit(unittest.TestCase):
         y = pd.Series(y)
         X = pd.DataFrame(X)  # noqa
 
+        c_lw_values = [np.quantile(y_star, 0.10), None]
+        c_up_values = [np.quantile(y_star, 0.90), None]
+        bool_values = [True, False]  # for reparam and ols_option
         combo = list(
             itertools.product(c_lw_values, c_up_values, bool_values, bool_values)
         )
