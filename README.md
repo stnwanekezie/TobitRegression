@@ -42,7 +42,7 @@ Run `tobit_reg.py` directly for an example of the model application.
 Clone this repository using:
 
 ```bash
-git clone https://github.com/stnwanekezie/myrecipes.git
+git clone https://github.com/stnwanekezie/TobitRegression.git
 cd tobit-regression
 ```
 
