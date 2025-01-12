@@ -19,6 +19,7 @@ Description:
 
 import copy
 import warnings
+import logging
 
 import numpy as np
 import pandas as pd
@@ -32,6 +33,9 @@ from statsmodels.regression.linear_model import (
     RegressionResultsWrapper,
 )
 
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 class Tobit(OLS):
     def __init__(
@@ -71,7 +75,7 @@ class Tobit(OLS):
         exog_copy = copy.deepcopy(exog)
 
         super().__init__(endog_copy, exog_copy, missing=missing, hasconst=hasconst, **kwargs)
-        if isinstance(endog, pd.DataFrame) or isinstance(endog, pd.Series):
+        if isinstance(endog, (pd.DataFrame, pd.Series)):
             endog = endog.values
         if isinstance(exog, pd.DataFrame):
             exog = exog.values
@@ -249,45 +253,9 @@ class Tobit(OLS):
     def fit_tobit(self, cov_type="HC1", cov_kwds=None, use_t=None, verbose=True):
         modl = super().fit(cov_type=cov_type)  # noqa
         self.ols_params = copy.deepcopy(modl.params)
-        scale = np.sqrt(np.cov(modl.resid))  # noqa
+        self.scale = np.sqrt(np.cov(modl.resid))  # noqa
 
-        if self.reparam:
-            gamma0 = 1 / np.sqrt(scale)
-            delta0 = self.ols_params * gamma0
-            params0 = np.append(gamma0, delta0)
-            func = self.neg_llh_func2
-            jac = self.neg_llh_jac2
-        else:
-            params0 = np.append(scale, self.ols_params)
-            func = self.neg_llh_func
-            jac = self.neg_llh_jac
-
-        result = minimize(
-            func,
-            params0,
-            method="BFGS",
-            jac=jac,
-            options={"disp": verbose},
-        )
-
-        if verbose:
-            print(result)
-
-        self.llh = -result.fun  # noqa
-        if self.reparam:
-            self.scale = 1 / result.x[0]
-            self.params = result.x[1:] * self.scale
-        else:
-            self.scale = result.x[0]
-            self.params = result.x[1:]
-
-        normalized_cov_params = result.hess_inv
-        # alternatively
-        # from statsmodels.tools.numdiff import approx_hess2
-        # normalized_cov_params = np.linalg.inv(approx_hess2(np.append(self.scale, self.params), func))
-        self.normalized_cov_params = normalized_cov_params[  # noqa
-            1:, 1:
-        ]  # Removal of scale covariances
+        self.fit_model(verbose)
 
         lfit = OLSResults(
             self,
@@ -301,15 +269,54 @@ class Tobit(OLS):
 
         return RegressionResultsWrapper(lfit)
 
-    def fit(self, cov_type="HC1", cov_kwds=None, use_t=None, verbose=True, **kwargs):
-        if all((self._c_lw is None, self._c_up is None)) and self.ols_option:
-            # res =
-            # self.loglike(res.params)
+    def fit(self, cov_type="HC1", cov_kwds=None, use_t=None, verbose=False, **kwargs):
+        if (
+            self._c_lw is None
+            and self._c_up is None
+            and self.ols_option
+        ):
             return super().fit(cov_type=cov_type, cov_kwds=None, use_t=None, **kwargs)
         else:
             return self.fit_tobit(
                 cov_type=cov_type, cov_kwds=None, use_t=None, verbose=verbose
             )
+
+    def fit_model(self, verbose):
+        initial_params, func, jac = self.get_initial_params_and_functions()
+        result = self.optimize_parameters(func, initial_params, jac, verbose)
+        self.update_model_parameters(result)
+        if verbose:
+            logger.info(result)
+
+    def get_initial_params_and_functions(self):
+        if self.reparam:
+            initial_params = np.append(1 / self.scale, self.ols_params / self.scale)
+            func = self.neg_llh_func2
+            jac = self.neg_llh_jac2
+        else:
+            initial_params = np.append(self.scale, self.ols_params)
+            func = self.neg_llh_func
+            jac = self.neg_llh_jac
+        return initial_params, func, jac
+
+    def optimize_parameters(self, func, initial_params, jac, verbose):
+        return minimize(
+            func,
+            initial_params,
+            method="BFGS",
+            jac=jac,
+            options={"disp": verbose},
+        )
+
+    def update_model_parameters(self, result):
+        self.llh = -result.fun  # noqa
+        if self.reparam:
+            self.scale = 1 / result.x[0]
+            self.params = result.x[1:] * self.scale
+        else:
+            self.scale = result.x[0]
+            self.params = result.x[1:]
+        self.normalized_cov_params = result.hess_inv[1:, 1:]
 
 
 if __name__ == "__main__":
@@ -350,7 +357,7 @@ if __name__ == "__main__":
     model = tobit.fit(cov_type='HC1')
     print(model.summary())
 
-    # Compare model fit to OLS
+    # Compare model tobit model and OLS fit to specification in line 337
     model2 = OLS(y, X).fit(cov_type='HC1')
     print(model2.summary())
     print()
