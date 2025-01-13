@@ -64,6 +64,20 @@ results = Tobit(y, X, c_lw=y_L, c_up=y_U).fit(verbose=True)
 print(results.summary())
 ```
 
+## Testing
+When using VS Code, importing the Tobit class may raise a ModuleNotFoundError. To resolve this, you may create a `.pth` file with VS Code or Notepad and include the top-level folder containing the required modules in the file.
+
+For example, add `my_modules.pth` in `.\TobitRegression\.venv\Lib` as follows:
+
+|- TobitRegression
+    |- .venv
+        |-Lib
+            |- my_modules.pth
+        ...
+    |- tobit
+    |- tests
+
+
 ## Contributing
 
 Contributions are welcome! Please open an issue to discuss proposed changes or submit a pull request.
