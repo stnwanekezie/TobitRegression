@@ -69,6 +69,7 @@ When using VS Code, importing the Tobit class may raise a ModuleNotFoundError. T
 
 For example, add `my_modules.pth` in `.\TobitRegression\.venv\Lib` as follows:
 
+```markdown
 |- TobitRegression
     |- .venv
         |-Lib
@@ -76,7 +77,7 @@ For example, add `my_modules.pth` in `.\TobitRegression\.venv\Lib` as follows:
         ...
     |- tobit
     |- tests
-
+```
 
 ## Contributing
 
