@@ -78,6 +78,7 @@ For example, add `my_modules.pth` in `.\TobitRegression\.venv\Lib` as follows:
     |- tobit
     |- tests
 ```
+and add the `<root_path>\TobitRegression` (without quotes) to `my_modules.pth`.
 
 ## Contributing
 
