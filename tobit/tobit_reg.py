@@ -18,7 +18,6 @@ Description:
 """
 
 import copy
-import warnings
 import logging
 
 import numpy as np
@@ -101,7 +100,8 @@ class Tobit(OLS):
         else:
             self.free_endog = endog
             self.free_exog = exog
-            warnings.warn(
+            
+            logger.info(
                 "No censoring threshold provided; OLS will be used for model estimation."
             )
 
