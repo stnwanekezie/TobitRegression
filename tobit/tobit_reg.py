@@ -1,7 +1,7 @@
 """
 Author: Stanley Nwanekezie
 Created on: August 25, 2024
-Last Modified: August 26, 2024
+Last Modified: Jan 13, 2025
 Email: stanwanekezie@gmail.com
 
 Description:
@@ -90,8 +90,6 @@ class Tobit(OLS):
             self.right_endog = endog[endog == c_up]
             self.right_exog = exog[endog == c_up, :]
         elif c_lw is not None and c_up is not None:
-            # endog[endog <= c_lw] = c_lw
-            # endog[endog >= c_up] = c_up
             self.left_endog = endog[endog == c_lw]
             self.left_exog = exog[endog == c_lw]
             self.free_endog = endog[(endog > c_lw) & (endog < c_up)]
@@ -197,12 +195,12 @@ class Tobit(OLS):
         llf_censored = 0
         if self._c_lw is not None and self.left_endog.size:
             llf_left = np.sum(
-                norm.logcdf(gamma * self.left_endog - np.dot(self.left_exog, delta))
+                log_ndtr(gamma * self.left_endog - np.dot(self.left_exog, delta))
             )
             llf_censored += llf_left
         if self._c_up is not None and self.right_endog.size:
             llf_right = np.sum(
-                norm.logcdf(np.dot(self.right_exog, delta) - gamma * self.right_endog)
+                log_ndtr(np.dot(self.right_exog, delta) - gamma * self.right_endog)
             )
             llf_censored += llf_right
 
@@ -255,7 +253,7 @@ class Tobit(OLS):
         self.ols_params = copy.deepcopy(modl.params)
         self.scale = np.sqrt(np.cov(modl.resid))  # noqa
 
-        self.fit_model(verbose)
+        self.run_optimize(verbose)
 
         lfit = OLSResults(
             self,
@@ -281,9 +279,15 @@ class Tobit(OLS):
                 cov_type=cov_type, cov_kwds=None, use_t=None, verbose=verbose
             )
 
-    def fit_model(self, verbose):
+    def run_optimize(self, verbose):
         initial_params, func, jac = self.get_initial_params_and_functions()
-        result = self.optimize_parameters(func, initial_params, jac, verbose)
+        result = minimize(
+            func,
+            initial_params,
+            method="BFGS",
+            jac=jac,
+            options={"disp": verbose},
+        )
         self.update_model_parameters(result)
         if verbose:
             logger.info(result)
@@ -298,15 +302,6 @@ class Tobit(OLS):
             func = self.neg_llh_func
             jac = self.neg_llh_jac
         return initial_params, func, jac
-
-    def optimize_parameters(self, func, initial_params, jac, verbose):
-        return minimize(
-            func,
-            initial_params,
-            method="BFGS",
-            jac=jac,
-            options={"disp": verbose},
-        )
 
     def update_model_parameters(self, result):
         self.llh = -result.fun  # noqa
