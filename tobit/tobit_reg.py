@@ -1,7 +1,7 @@
 """
 Author: Stanley Nwanekezie
 Created on: August 25, 2024
-Last Modified: Jan 13, 2025
+Last Modified: Nov 27, 2025
 Email: stanwanekezie@gmail.com
 
 Description:
@@ -17,6 +17,7 @@ Description:
     both the standard and reparameterized LLH functions are validated against censReg from R.
 """
 
+import re
 import copy
 import logging
 
@@ -27,14 +28,58 @@ from scipy.optimize import minimize
 from scipy.special import log_ndtr
 from scipy.stats import norm
 from statsmodels.api import OLS
+from statsmodels.iolib.table import SimpleTable
 from statsmodels.regression.linear_model import (
-    OLSResults, # noqa
+    OLSResults,  # noqa
     RegressionResultsWrapper,
 )
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+
+class TobitResultsWrapper(RegressionResultsWrapper):
+    @property
+    def rsquared(self):
+        """Report pseudo-R² instead of OLS R²."""
+        return self._results.model.pseudo_rsquared
+
+    @property
+    def rsquared_adj(self):
+        """Adjusted R² does not apply to Tobit."""
+        return None
+
+    def summary(self, yname=None, xname=None, title=None, alpha=0.05):
+        """Replacing R² with McFadden's pseudo R² and removing Adj. Rsquared."""
+        smry = self._results.summary(yname=yname, xname=xname, title=title, alpha=alpha)
+        table = smry.tables[0]
+        new_rows = []
+        for row in table.data:
+            rsq = list(filter(lambda x: x.find("  R-squared") != -1, row))
+            adj_rsq = list(filter(lambda x: x.find("Adj.") != -1, row))
+            if rsq:
+                rsq_idx = row.index(rsq[0])
+                row[rsq_idx] = "  Pseudo R-squared:"
+                row[rsq_idx + 1] = re.sub(
+                    r"\d+(\.\d+)?",
+                    f"{self.rsquared.item():.3e}",
+                    row[rsq_idx + 1],
+                )
+            elif adj_rsq:  # remove adjusted R²
+                adj_rsq_idx = row.index(adj_rsq[0])
+                row[adj_rsq_idx], row[adj_rsq_idx + 1] = ["", ""]
+            new_rows.append(row)
+
+        # Rebuild the table
+        table_modified = SimpleTable(
+            new_rows,
+            title=table.title,
+        )
+        smry.tables[0] = table_modified
+
+        return smry
+
 
 class Tobit(OLS):
     def __init__(
@@ -47,7 +92,7 @@ class Tobit(OLS):
         ols_option=True,
         missing="none",
         hasconst=None,
-        **kwargs
+        **kwargs,
     ):
         """
 
@@ -72,8 +117,11 @@ class Tobit(OLS):
 
         endog_copy = copy.deepcopy(endog)
         exog_copy = copy.deepcopy(exog)
+        self.endog = endog_copy
 
-        super().__init__(endog_copy, exog_copy, missing=missing, hasconst=hasconst, **kwargs)
+        super().__init__(
+            endog_copy, exog_copy, missing=missing, hasconst=hasconst, **kwargs
+        )
         if isinstance(endog, (pd.DataFrame, pd.Series)):
             endog = endog.values
         if isinstance(exog, pd.DataFrame):
@@ -92,15 +140,13 @@ class Tobit(OLS):
             self.left_endog = endog[endog == c_lw]
             self.left_exog = exog[endog == c_lw]
             self.free_endog = endog[(endog > c_lw) & (endog < c_up)]
-            self.free_exog = exog[
-                (endog > c_lw) & (endog < c_up), :
-            ]
+            self.free_exog = exog[(endog > c_lw) & (endog < c_up), :]
             self.right_endog = endog[endog == c_up]
             self.right_exog = exog[endog == c_up]
         else:
             self.free_endog = endog
             self.free_exog = exog
-            
+
             logger.info(
                 "No censoring threshold provided; OLS will be used for model estimation."
             )
@@ -120,6 +166,26 @@ class Tobit(OLS):
     @c_up.setter
     def c_up(self, new_value):
         raise AttributeError("Cannot modify upper threshold value after it is set.")
+
+    @property
+    def pseudo_rsquared(self):
+        """
+        Fit a null model (intercept only) on the same data and calculate
+        McFadden's Pseudo R-squared which shows improvement relative to
+        a model with only constant term. See McFadden, D. (1987).
+        Regression-based specification tests for the multinomial logit model.
+        Journal of Econometrics, 34(1–2), 63–82.
+        """
+        null_model = self.__class__(
+            self.endog, np.ones((len(self.endog), 1)), c_lw=self.c_lw, c_up=self.c_up
+        )
+        null_res = null_model.fit()
+        L0 = null_res.llh
+        L1 = self.llh
+        try:
+            return 1 - (L1 / L0)
+        except ZeroDivisionError:
+            return np.nan
 
     def neg_llh_jac(self, params):
         scale, betas = params[0], params[1:]
@@ -265,19 +331,18 @@ class Tobit(OLS):
             use_t=use_t,
         )
 
-        return RegressionResultsWrapper(lfit)
+        return TobitResultsWrapper(lfit)
 
     def fit(self, cov_type="HC1", cov_kwds=None, use_t=None, verbose=False, **kwargs):
-        if (
-            self._c_lw is None
-            and self._c_up is None
-            and self.ols_option
-        ):
-            return super().fit(cov_type=cov_type, cov_kwds=None, use_t=None, **kwargs)
+        if self._c_lw is None and self._c_up is None and self.ols_option:
+            self.model = super().fit(
+                cov_type=cov_type, cov_kwds=None, use_t=None, **kwargs
+            )
         else:
-            return self.fit_tobit(
+            self.model = self.fit_tobit(
                 cov_type=cov_type, cov_kwds=None, use_t=None, verbose=verbose
             )
+        return self.model
 
     def run_optimize(self, verbose):
         initial_params, func, jac = self.get_initial_params_and_functions()
@@ -349,10 +414,9 @@ if __name__ == "__main__":
     # Separating instance from models allows access to class
     # attributes after model run.
     tobit = Tobit(y, X, reparam=False, c_lw=y_l, c_up=y_u, ols_option=ols_opt)  # noqa
-    model = tobit.fit(cov_type='HC1')
+    model = tobit.fit(cov_type="HC1")
     print(model.summary())
 
     # Compare model tobit model and OLS fit to specification in line 337
-    model2 = OLS(y, X).fit(cov_type='HC1')
+    model2 = OLS(y, X).fit(cov_type="HC1")
     print(model2.summary())
-    print()
