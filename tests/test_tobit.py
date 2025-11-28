@@ -317,6 +317,7 @@ class TestTobit(unittest.TestCase):
             elif y_l is None and y_u is not None:
                 expected_results = [tbl6, tbl7, tbl8]
             else:
+                # Reparam set to True or False should produce same result
                 expected_results = [tbl9, tbl10, tbl11]
 
             assert_frame_equal(
