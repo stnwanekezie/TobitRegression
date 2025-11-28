@@ -335,7 +335,9 @@ class Tobit(OLS):
         return TobitResultsWrapper(lfit)
 
     def fit(self, cov_type="HC1", cov_kwds=None, use_t=None, verbose=False, **kwargs):
-        if self._c_lw is None and self._c_up is None and self.ols_option:
+        if (self._c_lw is None and self._c_up is None) or self.ols_option:
+            if not (self._c_lw is None and self._c_up is None):
+                logging.warning("Using OLS option ignores censoring thresholds.")
             self.model = super().fit(
                 cov_type=cov_type, cov_kwds=None, use_t=None, **kwargs
             )
@@ -385,7 +387,7 @@ if __name__ == "__main__":
     # Generate the data
 
     use_pandas = False
-    ols_opt = False
+    ols_opt = True
     # Number of observations
     n = 10000
     # Independent variables

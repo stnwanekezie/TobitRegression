@@ -25,66 +25,6 @@ tbl0 = pd.DataFrame(
             "Df Model:": "2",
             "Covariance Type:": "HC1",
         },
-        "Pseudo R-squared:": {
-            "Model:": "",
-            "Method:": "F-statistic:",
-            "Date:": "Prob (F-statistic):",
-            "Time:": "Log-Likelihood:",
-            "No. Observations:": "AIC:",
-            "Df Residuals:": "BIC:",
-            "Df Model:": float("nan"),
-            "Covariance Type:": float("nan"),
-        },
-        "0.746": {
-            "Model:": 0.746,
-            "Method:": 11130.0,
-            "Date:": 0.0,
-            "Time:": -17985.0,
-            "No. Observations:": 35980.0,
-            "Df Residuals:": 36000.0,
-            "Df Model:": float("nan"),
-            "Covariance Type:": float("nan"),
-        },
-    }
-)
-
-
-tbl1 = pd.DataFrame(
-    {
-        "coef": {0: 5.209, 1: 0.292, 2: 1.4749},
-        "std err": {0: 0.094, 1: 0.007, 2: 0.01},
-        "z": {0: 55.498, 1: 41.846, 2: 147.829},
-        "P>|z|": {0: 0.0, 1: 0.0, 2: 0.0},
-        "[0.025": {0: 5.025, 1: 0.278, 2: 1.455},
-        "0.975]": {0: 5.393, 1: 0.306, 2: 1.494},
-    }
-)
-
-tbl2 = pd.DataFrame(
-    {
-        "145.139": {"Prob(Omnibus):": 0.0, "Skew:": -0.052, "Kurtosis:": 3.796},
-        "Durbin-Watson:": {
-            "Prob(Omnibus):": "Jarque-Bera (JB):",
-            "Skew:": "Prob(JB):",
-            "Kurtosis:": "Cond. No.",
-        },
-        "1.983": {"Prob(Omnibus):": 268.725, "Skew:": 4.44e-59, "Kurtosis:": 45.2},
-    }
-)
-tbl2.index.name = "Omnibus:"
-
-tbl3 = pd.DataFrame(
-    {
-        "y": {
-            "Model:": "Tobit",
-            "Method:": "Least Squares",
-            "Date:": "Tue, 27 Aug 2024",
-            "Time:": "08:10:33",
-            "No. Observations:": "10000",
-            "Df Residuals:": "9997",
-            "Df Model:": "2",
-            "Covariance Type:": "HC1",
-        },
         "R-squared:": {
             "Model:": "Adj. R-squared:",
             "Method:": "F-statistic:",
@@ -95,8 +35,68 @@ tbl3 = pd.DataFrame(
             "Df Model:": float("nan"),
             "Covariance Type:": float("nan"),
         },
+        "0.794": {
+            "Model:": 0.794,
+            "Method:": 16900.0,
+            "Date:": 0.0,
+            "Time:": -20373.0,
+            "No. Observations:": 40750.0,
+            "Df Residuals:": 40770.0,
+            "Df Model:": float("nan"),
+            "Covariance Type:": float("nan"),
+        },
+    }
+)
+
+
+tbl1 = pd.DataFrame(
+    {
+        "coef": {0: 7.2177, 1: 0.236, 2: 1.1856},
+        "std err": {0: 0.074, 1: 0.006, 2: 0.007},
+        "z": {0: 97.731, 1: 37.688, 2: 180.458},
+        "P>|z|": {0: 0.0, 1: 0.0, 2: 0.0},
+        "[0.025": {0: 7.073, 1: 0.224, 2: 1.173},
+        "0.975]": {0: 7.362, 1: 0.248, 2: 1.198},
+    }
+)
+
+tbl2 = pd.DataFrame(
+    {
+        "1.221": {"Prob(Omnibus):": 0.543, "Skew:": -0.027, "Kurtosis:": 2.987},
+        "Durbin-Watson:": {
+            "Prob(Omnibus):": "Jarque-Bera (JB):",
+            "Skew:": "Prob(JB):",
+            "Kurtosis:": "Cond. No.",
+        },
+        "1.998": {"Prob(Omnibus):": 1.237, "Skew:": 0.539, "Kurtosis:": 45.2},
+    }
+)
+tbl2.index.name = "Omnibus:"
+
+tbl3 = pd.DataFrame(
+    {
+        "y": {
+            "Model:": "Tobit",
+            "Method:": "Least Squares",
+            "Date:": "Fri, 28 Nov 2025",
+            "Time:": "09:55:22",
+            "No. Observations:": "10000",
+            "Df Residuals:": "9997",
+            "Df Model:": "2",
+            "Covariance Type:": "HC1",
+        },
+        "Pseudo R-squared:": {
+            "Model:": float("nan"),
+            "Method:": "F-statistic:",
+            "Date:": "Prob (F-statistic):",
+            "Time:": "Log-Likelihood:",
+            "No. Observations:": "AIC:",
+            "Df Residuals:": "BIC:",
+            "Df Model:": float("nan"),
+            "Covariance Type:": float("nan"),
+        },
         "0.784": {
-            "Model:": 0.784,
+            "Model:": float("nan"),
             "Method:": 14600.0,
             "Date:": 0.0,
             "Time:": -19385.0,
@@ -136,15 +136,15 @@ tbl6 = pd.DataFrame(
         "y": {
             "Model:": "Tobit",
             "Method:": "Least Squares",
-            "Date:": "Tue, 27 Aug 2024",
-            "Time:": "08:19:50",
+            "Date:": "Fri, 28 Nov 2025",
+            "Time:": "09:57:42",
             "No. Observations:": "10000",
             "Df Residuals:": "9997",
             "Df Model:": "2",
             "Covariance Type:": "HC1",
         },
-        "R-squared:": {
-            "Model:": "Adj. R-squared:",
+        "Pseudo R-squared:": {
+            "Model:": float("nan"),
             "Method:": "F-statistic:",
             "Date:": "Prob (F-statistic):",
             "Time:": "Log-Likelihood:",
@@ -154,7 +154,7 @@ tbl6 = pd.DataFrame(
             "Covariance Type:": float("nan"),
         },
         "0.783": {
-            "Model:": 0.783,
+            "Model:": float("nan"),
             "Method:": 14280.0,
             "Date:": 0.0,
             "Time:": -19301.0,
@@ -194,15 +194,15 @@ tbl9 = pd.DataFrame(
         "y": {
             "Model:": "Tobit",
             "Method:": "Least Squares",
-            "Date:": "Tue, 27 Aug 2024",
-            "Time:": "08:24:41",
+            "Date:": "Fri, 28 Nov 2025",
+            "Time:": "09:48:28",
             "No. Observations:": "10000",
             "Df Residuals:": "9997",
             "Df Model:": "2",
             "Covariance Type:": "HC1",
         },
-        "R-squared:": {
-            "Model:": "Adj. R-squared:",
+        "Pseudo R-squared:": {
+            "Model:": float("nan"),
             "Method:": "F-statistic:",
             "Date:": "Prob (F-statistic):",
             "Time:": "Log-Likelihood:",
@@ -211,13 +211,13 @@ tbl9 = pd.DataFrame(
             "Df Model:": float("nan"),
             "Covariance Type:": float("nan"),
         },
-        "0.794": {
-            "Model:": 0.794,
-            "Method:": 16900.0,
+        "0.746": {
+            "Model:": float("nan"),
+            "Method:": 11130.0,
             "Date:": 0.0,
-            "Time:": -20373.0,
-            "No. Observations:": 40750.0,
-            "Df Residuals:": 40770.0,
+            "Time:": -17985.0,
+            "No. Observations:": 35980.0,
+            "Df Residuals:": 36000.0,
             "Df Model:": float("nan"),
             "Covariance Type:": float("nan"),
         },
@@ -226,24 +226,24 @@ tbl9 = pd.DataFrame(
 
 tbl10 = pd.DataFrame(
     {
-        "coef": {0: 7.2177, 1: 0.236, 2: 1.1856},
-        "std err": {0: 0.074, 1: 0.006, 2: 0.007},
-        "z": {0: 97.731, 1: 37.688, 2: 180.458},
+        "coef": {0: 5.209, 1: 0.292, 2: 1.4749},
+        "std err": {0: 0.094, 1: 0.007, 2: 0.01},
+        "z": {0: 55.498, 1: 41.846, 2: 147.829},
         "P>|z|": {0: 0.0, 1: 0.0, 2: 0.0},
-        "[0.025": {0: 7.073, 1: 0.224, 2: 1.173},
-        "0.975]": {0: 7.362, 1: 0.248, 2: 1.198},
+        "[0.025": {0: 5.025, 1: 0.278, 2: 1.455},
+        "0.975]": {0: 5.393, 1: 0.306, 2: 1.494},
     }
 )
 
 tbl11 = pd.DataFrame(
     {
-        "1.221": {"Prob(Omnibus):": 0.543, "Skew:": -0.027, "Kurtosis:": 2.987},
+        "145.139": {"Prob(Omnibus):": 0.0, "Skew:": -0.052, "Kurtosis:": 3.796},
         "Durbin-Watson:": {
             "Prob(Omnibus):": "Jarque-Bera (JB):",
             "Skew:": "Prob(JB):",
             "Kurtosis:": "Cond. No.",
         },
-        "1.998": {"Prob(Omnibus):": 1.237, "Skew:": 0.539, "Kurtosis:": 45.2},
+        "1.983": {"Prob(Omnibus):": 268.725, "Skew:": 4.44e-59, "Kurtosis:": 45.2},
     }
 )
 
@@ -310,7 +310,7 @@ class TestTobit(unittest.TestCase):
                 for table in tables
             ]
 
-            if y_l is not None and y_u is not None:
+            if (y_l is None and y_u is None) or ols_opt:
                 expected_results = [tbl0, tbl1, tbl2]
             elif y_l is not None and y_u is None:
                 expected_results = [tbl3, tbl4, tbl5]
@@ -322,13 +322,10 @@ class TestTobit(unittest.TestCase):
             assert_frame_equal(
                 results[0].drop("y", axis=1), expected_results[0].drop("y", axis=1)
             )
-            try:
-                [
-                    assert_frame_equal(r, s)
-                    for r, s in zip(results[1:], expected_results[1:])
-                ]
-            except AssertionError:
-                print(y_l, y_u)
+            [
+                assert_frame_equal(r, s)
+                for r, s in zip(results[1:], expected_results[1:])
+            ]
 
 
 if __name__ == "__main__":
