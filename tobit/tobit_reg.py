@@ -53,30 +53,31 @@ class TobitResultsWrapper(RegressionResultsWrapper):
     def summary(self, yname=None, xname=None, title=None, alpha=0.05):
         """Replacing R² with McFadden's pseudo R² and removing Adj. Rsquared."""
         smry = self._results.summary(yname=yname, xname=xname, title=title, alpha=alpha)
-        table = smry.tables[0]
-        new_rows = []
-        for row in table.data:
-            rsq = list(filter(lambda x: x.find("  R-squared") != -1, row))
-            adj_rsq = list(filter(lambda x: x.find("Adj.") != -1, row))
-            if rsq:
-                rsq_idx = row.index(rsq[0])
-                row[rsq_idx] = "  Pseudo R-squared:"
-                row[rsq_idx + 1] = re.sub(
-                    r"\d+(\.\d+)?",
-                    f"{self.rsquared.item():.3e}",
-                    row[rsq_idx + 1],
-                )
-            elif adj_rsq:  # remove adjusted R²
-                adj_rsq_idx = row.index(adj_rsq[0])
-                row[adj_rsq_idx], row[adj_rsq_idx + 1] = ["", ""]
-            new_rows.append(row)
+        if type(self._results.model).__name__ == "Tobit":
+            table = smry.tables[0]
+            new_rows = []
+            for row in table.data:
+                rsq = list(filter(lambda x: x.find("  R-squared") != -1, row))
+                adj_rsq = list(filter(lambda x: x.find("Adj.") != -1, row))
+                if rsq:
+                    rsq_idx = row.index(rsq[0])
+                    row[rsq_idx] = "  Pseudo R-squared:"
+                    row[rsq_idx + 1] = re.sub(
+                        r"\d+(\.\d+)?",
+                        f"{self.rsquared.item():.3f}",
+                        row[rsq_idx + 1],
+                    )
+                elif adj_rsq:  # remove adjusted R²
+                    adj_rsq_idx = row.index(adj_rsq[0])
+                    row[adj_rsq_idx], row[adj_rsq_idx + 1] = ["", ""]
+                new_rows.append(row)
 
-        # Rebuild the table
-        table_modified = SimpleTable(
-            new_rows,
-            title=table.title,
-        )
-        smry.tables[0] = table_modified
+            # Rebuild the table
+            table_modified = SimpleTable(
+                new_rows,
+                title=table.title,
+            )
+            smry.tables[0] = table_modified
 
         return smry
 
