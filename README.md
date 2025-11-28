@@ -73,7 +73,8 @@ For example, add `my_modules.pth` in `.\TobitRegression\.venv\Lib` as follows:
 |- TobitRegression
     |- .venv
         |-Lib
-            |- my_modules.pth
+            |- site-packages
+                |- my_modules.pth
         ...
     |- tobit
     |- tests
